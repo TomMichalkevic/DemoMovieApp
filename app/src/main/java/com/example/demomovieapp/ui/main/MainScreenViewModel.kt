@@ -9,18 +9,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-sealed interface MainScreenUiState {
-    object Loading : MainScreenUiState
-    data class Error(val message: String) : MainScreenUiState
-    data class Success(val movies: List<Movie>) : MainScreenUiState
-}
-
 class MainScreenViewModel(
     private val repository: MovieRepository = MovieRepository()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<MainScreenUiState>(MainScreenUiState.Loading)
-    val uiState: StateFlow<MainScreenUiState> = _uiState.asStateFlow()
+    private val _movies = MutableStateFlow<List<Movie>>(emptyList())
+    val movies: StateFlow<List<Movie>> = _movies.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
 
     init {
         fetchMovies()
@@ -28,12 +28,14 @@ class MainScreenViewModel(
 
     fun fetchMovies() {
         viewModelScope.launch {
-            _uiState.value = MainScreenUiState.Loading
+            _isLoading.value = true
+            _error.value = null
             try {
-                val movies = repository.getNowPlaying()
-                _uiState.value = MainScreenUiState.Success(movies)
+                _movies.value = repository.getNowPlaying()
             } catch (e: Exception) {
-                _uiState.value = MainScreenUiState.Error(e.message ?: "Unknown error occurred")
+                _error.value = e.message ?: "Unknown error occurred"
+            } finally {
+                _isLoading.value = false
             }
         }
     }

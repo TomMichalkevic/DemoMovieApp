@@ -24,32 +24,28 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = viewModel()
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val movies by viewModel.movies.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val error by viewModel.error.collectAsStateWithLifecycle()
 
-    when (state) {
-        is MainScreenUiState.Loading -> {
-            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
-        is MainScreenUiState.Success -> {
-            val movies = (state as MainScreenUiState.Success).movies
+    Box(modifier = modifier.fillMaxSize()) {
+        if (isLoading && movies.isEmpty()) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else if (error != null && movies.isEmpty()) {
+            Text(
+                text = error!!,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(120.dp),
                 contentPadding = PaddingValues(8.dp),
-                modifier = modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 items(movies) { movie ->
                     MovieItem(movie = movie, onClick = { onMovieClick(movie) })
                 }
-            }
-        }
-        is MainScreenUiState.Error -> {
-            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = (state as MainScreenUiState.Error).message,
-                    color = MaterialTheme.colorScheme.error
-                )
             }
         }
     }
