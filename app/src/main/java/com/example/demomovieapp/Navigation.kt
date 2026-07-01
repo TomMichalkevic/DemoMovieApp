@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
@@ -22,12 +23,14 @@ fun MainNavigation() {
       entryProvider {
         entry<Main> {
           MainScreen(
+              viewModel = hiltViewModel(),
               onMovieClick = { movie -> backStack.add(Detail(movie)) }, 
               modifier = Modifier.safeDrawingPadding().padding(16.dp)
           )
         }
         entry<Detail> { detailKey ->
           MovieDetailScreen(
+              viewModel = hiltViewModel(),
               movie = detailKey.movie,
               onPlayTrailer = { url -> backStack.add(VideoPlayer(url)) },
               onBackClick = { backStack.removeLastOrNull() },

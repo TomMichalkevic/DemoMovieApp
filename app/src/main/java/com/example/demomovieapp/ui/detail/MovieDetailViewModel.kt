@@ -2,14 +2,17 @@ package com.example.demomovieapp.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.demomovieapp.data.MovieRepository
+import com.example.demomovieapp.domain.repository.MovieRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class MovieDetailViewModel(
-    private val repository: MovieRepository = MovieRepository()
+@HiltViewModel
+class MovieDetailViewModel @Inject constructor(
+    private val repository: MovieRepository
 ) : ViewModel() {
 
     private val _trailerUrl = MutableStateFlow<String?>(null)

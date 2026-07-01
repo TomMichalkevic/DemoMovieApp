@@ -1,5 +1,8 @@
 plugins {
   alias(libs.plugins.android.application)
+  alias(libs.plugins.kotlin.android)
+  alias(libs.plugins.hilt)
+  alias(libs.plugins.kotlin.kapt)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.kotlin.serialization)
 }
@@ -96,4 +99,16 @@ dependencies {
   // Media Playback
   implementation(libs.media3.exoplayer)
   implementation(libs.media3.ui)
+
+  // Hilt
+  implementation(libs.hilt.android)
+  kapt(libs.hilt.compiler)
+  implementation(libs.androidx.hilt.navigation.compose)
+}
+
+kapt {
+    correctErrorTypes = true
+    arguments {
+        arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
+    }
 }

@@ -3,7 +3,10 @@ package com.example.demomovieapp.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.demomovieapp.domain.model.Movie
-import com.example.demomovieapp.data.MovieRepository
+import com.example.demomovieapp.domain.repository.MovieRepository
+import com.example.demomovieapp.domain.repository.HistoryRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,8 +14,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class MainScreenViewModel(
-    private val repository: MovieRepository = MovieRepository()
+@HiltViewModel
+class MainScreenViewModel @Inject constructor(
+    private val repository: MovieRepository,
+    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
     private val _popularMovies = MutableStateFlow<List<Movie>>(emptyList())
@@ -106,9 +111,9 @@ class MainScreenViewModel(
         }
     }
 
-    val viewedMovies: StateFlow<List<Movie>> = com.example.demomovieapp.data.MovieHistory.viewedMovies
+    val viewedMovies: StateFlow<List<Movie>> = historyRepository.viewedMovies
 
     fun trackMovieView(movie: Movie) {
-        com.example.demomovieapp.data.MovieHistory.addViewedMovie(movie)
+        historyRepository.addViewedMovie(movie)
     }
 }
