@@ -50,8 +50,8 @@ class MovieRepository {
             val response = tmdbApi.getVideos(movieId, apiKey)
             val hasTrailer = response.results.any { it.type.equals("Trailer", ignoreCase = true) }
             if (hasTrailer) {
-                // Return local sample video from raw resources
-                "android.resource://com.example.demomovieapp/raw/sample_video"
+                // Return local sample video resource ID
+                com.example.demomovieapp.R.raw.sample_video.toString()
             } else {
                 null
             }

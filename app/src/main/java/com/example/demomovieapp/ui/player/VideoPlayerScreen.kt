@@ -23,6 +23,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
 
+import androidx.media3.datasource.RawResourceDataSource
+
 @Composable
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 fun VideoPlayerScreen(videoUrl: String) {
@@ -38,8 +40,15 @@ fun VideoPlayerScreen(videoUrl: String) {
     var showControls by remember { mutableStateOf(true) }
 
     DisposableEffect(videoUrl) {
+        val uri = try {
+            val resId = videoUrl.toInt()
+            RawResourceDataSource.buildRawResourceUri(resId)
+        } catch (e: NumberFormatException) {
+            android.net.Uri.parse(videoUrl)
+        }
+
         val player = ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(videoUrl))
+            setMediaItem(MediaItem.fromUri(uri))
             addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(playbackState: Int) {
                     isBuffering = playbackState == Player.STATE_BUFFERING
