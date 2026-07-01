@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TmdbResponse(
-    val results: List<TmdbMovie>
+    val results: List<TmdbMovie>,
+    @SerialName("total_pages") val totalPages: Int = 1
 )
 
 @Serializable

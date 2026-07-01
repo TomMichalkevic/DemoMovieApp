@@ -33,6 +33,12 @@ class MainScreenViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private var searchPage = 1
+    private var maxSearchPages = 1
+    
+    private val _isFetchingMore = MutableStateFlow(false)
+    val isFetchingMore: StateFlow<Boolean> = _isFetchingMore.asStateFlow()
+
     private var searchJob: Job? = null
 
     init {
@@ -62,16 +68,40 @@ class MainScreenViewModel(
             _searchResults.value = null
             return
         }
+        
+        searchPage = 1
+        maxSearchPages = 1
 
         searchJob = viewModelScope.launch {
             delay(500) // debounce
             _isLoading.value = true
             try {
-                _searchResults.value = repository.searchMovies(query)
+                val (movies, totalPages) = repository.searchMovies(query, searchPage)
+                maxSearchPages = totalPages
+                _searchResults.value = movies
             } catch (e: Exception) {
                 // Ignore search errors for simplicity
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+    
+    fun loadNextSearchPage() {
+        if (_isLoading.value || _isFetchingMore.value || searchPage >= maxSearchPages) return
+        val query = _searchQuery.value
+        if (query.isBlank()) return
+
+        searchPage++
+        viewModelScope.launch {
+            _isFetchingMore.value = true
+            try {
+                val (newMovies, _) = repository.searchMovies(query, searchPage)
+                _searchResults.value = _searchResults.value.orEmpty() + newMovies
+            } catch (e: Exception) {
+                searchPage--
+            } finally {
+                _isFetchingMore.value = false
             }
         }
     }

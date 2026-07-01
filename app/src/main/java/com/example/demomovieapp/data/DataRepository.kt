@@ -32,8 +32,9 @@ class MovieRepository {
         tmdbApi.getTopRated(apiKey).results.map { mapToDomain(it) }
     }
 
-    suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
-        tmdbApi.searchMovies(apiKey, query).results.map { mapToDomain(it) }
+    suspend fun searchMovies(query: String, page: Int = 1): Pair<List<Movie>, Int> = withContext(Dispatchers.IO) {
+        val response = tmdbApi.searchMovies(apiKey, query, page = page)
+        Pair(response.results.map { mapToDomain(it) }, response.totalPages)
     }
 
     private fun mapToDomain(tmdbMovie: TmdbMovie): Movie {

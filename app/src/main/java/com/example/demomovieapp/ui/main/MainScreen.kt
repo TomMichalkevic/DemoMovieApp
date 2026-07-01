@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -84,8 +85,29 @@ fun MainScreen(
                             }
                         }
                     } else {
-                        items(searchResults!!) { movie ->
+                        itemsIndexed(searchResults!!) { index, movie ->
                             MovieListItem(movie = movie, onClick = { handleMovieClick(movie) })
+                            
+                            // Trigger load next page when we reach the end
+                            if (index == searchResults!!.lastIndex) {
+                                androidx.compose.runtime.LaunchedEffect(index) {
+                                    viewModel.loadNextSearchPage()
+                                }
+                            }
+                        }
+                        
+                        val isFetchingMore by viewModel.isFetchingMore.collectAsStateWithLifecycle()
+                        if (isFetchingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
                         }
                     }
                 } else {
