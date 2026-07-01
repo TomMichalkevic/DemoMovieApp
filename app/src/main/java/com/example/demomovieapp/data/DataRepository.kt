@@ -16,7 +16,7 @@ class MovieRepository {
     private val mediaType = "application/json".toMediaType()
 
     private val tmdbRetrofit = Retrofit.Builder()
-        .baseUrl("https://api.themoviedb.org/3/")
+        .baseUrl(BuildConfig.TMDB_BASE_URL)
         .addConverterFactory(json.asConverterFactory(mediaType))
         .build()
 

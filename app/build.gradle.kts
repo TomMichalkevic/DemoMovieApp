@@ -14,6 +14,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "TMDB_API_KEY", "\"YOUR_API_KEY\"")
+        buildConfigField("String", "TMDB_BASE_URL", "\"https://api.themoviedb.org/3/\"")
     }
 
     buildTypes {
