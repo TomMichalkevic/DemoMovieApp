@@ -102,7 +102,7 @@ fun MovieDetailScreen(
                 }
 
                 // Overlaid Poster with Animation
-                AnimatedVisibility(
+                androidx.compose.animation.AnimatedVisibility(
                     visible = isPosterVisible,
                     enter = slideInVertically(
                         initialOffsetY = { it },
