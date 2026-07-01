@@ -14,6 +14,9 @@ class HistoryRepositoryImpl : HistoryRepository {
         val current = _viewedMovies.value.toMutableList()
         current.removeAll { it.id == movie.id }
         current.add(0, movie) // Add to the beginning of the list
+        if (current.size > 20) {
+            current.removeAt(current.lastIndex)
+        }
         _viewedMovies.value = current
     }
 }
