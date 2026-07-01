@@ -10,6 +10,7 @@ import com.example.demomovieapp.data.remote.dto.TmdbMovie
 import com.example.demomovieapp.data.remote.dto.TmdbResponse
 import com.example.demomovieapp.data.remote.dto.TmdbVideoResponse
 import com.example.demomovieapp.data.remote.dto.VideoType
+import com.example.demomovieapp.data.remote.mapper.toDomain
 
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -28,28 +29,16 @@ class MovieRepository {
     private val apiKey = BuildConfig.TMDB_API_KEY
 
     suspend fun getPopular(): List<Movie> = withContext(Dispatchers.IO) {
-        tmdbApi.getPopular(apiKey).results.map { mapToDomain(it) }
+        tmdbApi.getPopular(apiKey).results.map { it.toDomain() }
     }
 
     suspend fun getTopRated(): List<Movie> = withContext(Dispatchers.IO) {
-        tmdbApi.getTopRated(apiKey).results.map { mapToDomain(it) }
+        tmdbApi.getTopRated(apiKey).results.map { it.toDomain() }
     }
 
     suspend fun searchMovies(query: String, page: Int = 1): Pair<List<Movie>, Int> = withContext(Dispatchers.IO) {
         val response = tmdbApi.searchMovies(apiKey, query, page = page)
-        Pair(response.results.map { mapToDomain(it) }, response.totalPages)
-    }
-
-    private fun mapToDomain(tmdbMovie: TmdbMovie): Movie {
-        return Movie(
-            id = tmdbMovie.id,
-            title = tmdbMovie.title,
-            overview = tmdbMovie.overview,
-            posterUrl = tmdbMovie.posterUrl,
-            backdropUrl = tmdbMovie.backdropUrl,
-            voteAverage = tmdbMovie.voteAverage,
-            trailerUrl = null
-        )
+        Pair(response.results.map { it.toDomain() }, response.totalPages)
     }
 
     suspend fun getTrailerUrl(movieId: Int): String? = withContext(Dispatchers.IO) {
