@@ -1,5 +1,12 @@
 package com.example.demomovieapp.ui.player
 
+import android.app.Activity
+import android.app.PictureInPictureParams
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,13 +29,22 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
-
 import androidx.media3.datasource.RawResourceDataSource
+import androidx.core.util.Consumer
+import androidx.core.app.PictureInPictureModeChangedInfo
+
+fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
 
 @Composable
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 fun VideoPlayerScreen(videoUrl: String) {
     val context = LocalContext.current
+    val activity = context.findActivity()
+
     var exoPlayer by remember { mutableStateOf<ExoPlayer?>(null) }
     var isBuffering by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -38,6 +54,7 @@ fun VideoPlayerScreen(videoUrl: String) {
     var currentPosition by remember { mutableStateOf(0L) }
     var totalDuration by remember { mutableStateOf(0L) }
     var showControls by remember { mutableStateOf(true) }
+    var isInPipMode by remember { mutableStateOf(false) }
 
     DisposableEffect(videoUrl) {
         val uri = try {
@@ -73,6 +90,35 @@ fun VideoPlayerScreen(videoUrl: String) {
         onDispose {
             player.release()
         }
+    }
+
+    // Observe PiP Mode changes
+    DisposableEffect(context) {
+        val listener = Consumer<PictureInPictureModeChangedInfo> { info ->
+            isInPipMode = info.isInPictureInPictureMode
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            (activity as? ComponentActivity)?.addOnPictureInPictureModeChangedListener(listener)
+        }
+        onDispose {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                (activity as? ComponentActivity)?.removeOnPictureInPictureModeChangedListener(listener)
+            }
+        }
+    }
+
+    // Auto-enter PiP setup (Android 12+)
+    DisposableEffect(isPlaying) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val isPipSupported = context.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+            if (isPipSupported) {
+                val params = PictureInPictureParams.Builder()
+                    .setAutoEnterEnabled(isPlaying)
+                    .build()
+                activity?.setPictureInPictureParams(params)
+            }
+        }
+        onDispose { }
     }
 
     // Update progress bar
@@ -123,7 +169,7 @@ fun VideoPlayerScreen(videoUrl: String) {
         )
 
         // Custom Compose Overlay Controls
-        if (showControls && exoPlayer != null) {
+        if (showControls && exoPlayer != null && !isInPipMode) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -186,14 +232,14 @@ fun VideoPlayerScreen(videoUrl: String) {
             }
         }
 
-        if (isBuffering && errorMessage == null) {
+        if (isBuffering && errorMessage == null && !isInPipMode) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
                 color = MaterialTheme.colorScheme.primary
             )
         }
 
-        if (errorMessage != null) {
+        if (errorMessage != null && !isInPipMode) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
