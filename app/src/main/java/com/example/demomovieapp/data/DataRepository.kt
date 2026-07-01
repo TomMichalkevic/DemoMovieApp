@@ -3,9 +3,6 @@ package com.example.demomovieapp.data
 import com.example.demomovieapp.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
@@ -62,17 +59,5 @@ class MovieRepository {
         } catch (e: Exception) {
             null
         }
-    }
-}
-
-object MovieHistory {
-    private val _viewedMovies = MutableStateFlow<List<Movie>>(emptyList())
-    val viewedMovies: StateFlow<List<Movie>> = _viewedMovies.asStateFlow()
-
-    fun addViewedMovie(movie: Movie) {
-        val current = _viewedMovies.value.toMutableList()
-        current.removeAll { it.id == movie.id }
-        current.add(0, movie) // Add to the beginning of the list
-        _viewedMovies.value = current
     }
 }
