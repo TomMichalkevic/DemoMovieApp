@@ -50,8 +50,8 @@ class MovieRepository {
             val response = tmdbApi.getVideos(movieId, apiKey)
             val hasTrailer = response.results.any { it.type.equals("Trailer", ignoreCase = true) }
             if (hasTrailer) {
-                // Return a high-quality sample video to natively demonstrate ExoPlayer
-                "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
+                // Return local sample video from raw resources
+                "android.resource://com.example.demomovieapp/raw/sample_video"
             } else {
                 null
             }
