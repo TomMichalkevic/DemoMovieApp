@@ -16,7 +16,14 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "TMDB_API_KEY", "\"YOUR_API_KEY\"")
+        val keystorePropertiesFile = rootProject.file("local.properties")
+        val keystoreProperties = java.util.Properties()
+        if (keystorePropertiesFile.exists()) {
+            keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+        }
+        val tmdbApiKey = keystoreProperties.getProperty("TMDB_API_KEY") ?: "YOUR_API_KEY"
+        
+        buildConfigField("String", "TMDB_API_KEY", "\"$tmdbApiKey\"")
         buildConfigField("String", "TMDB_BASE_URL", "\"https://api.themoviedb.org/3/\"")
     }
 
