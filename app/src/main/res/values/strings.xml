@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">DemoMovieApp</string>
+    <string name="search_movies">Search movies...</string>
+    <string name="search_content_desc">Search</string>
+    <string name="no_movies_found">No movies found matching \"%1$s\"</string>
+    <string name="search_results">Search Results</string>
+    <string name="viewed_movies">Viewed Movies</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="details">Details</string>
+    <string name="back_content_desc">Back</string>
+    <string name="play_trailer_content_desc">Play Trailer</string>
+    <string name="overview">Overview</string>
+    <string name="rating_format">Rating: %1$s/10</string>
+    <string name="error_playing_video">Error playing video: %1$s</string>
+    <string name="pause_content_desc">Pause</string>
+    <string name="play_content_desc">Play</string>
+    <string name="error_content_desc">Error</string>
 </resources>

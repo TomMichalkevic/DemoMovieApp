@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
@@ -79,7 +80,7 @@ fun VideoPlayerScreen(videoUrl: String) {
                 }
 
                 override fun onPlayerError(error: PlaybackException) {
-                    errorMessage = "Error playing video: ${error.message}"
+                    errorMessage = context.getString(com.example.demomovieapp.R.string.error_playing_video, error.message)
                     isBuffering = false
                 }
             })
@@ -187,7 +188,7 @@ fun VideoPlayerScreen(videoUrl: String) {
                 ) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) "Pause" else "Play",
+                        contentDescription = if (isPlaying) stringResource(com.example.demomovieapp.R.string.pause_content_desc) else stringResource(com.example.demomovieapp.R.string.play_content_desc),
                         tint = Color.White,
                         modifier = Modifier.size(64.dp)
                     )
@@ -246,7 +247,7 @@ fun VideoPlayerScreen(videoUrl: String) {
             ) {
                 Icon(
                     Icons.Default.Warning,
-                    contentDescription = "Error",
+                    contentDescription = stringResource(com.example.demomovieapp.R.string.error_content_desc),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(48.dp)
                 )

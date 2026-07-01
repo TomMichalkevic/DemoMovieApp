@@ -13,7 +13,6 @@ class HistoryRepositoryImplTest {
 
     private val movie1 = Movie(1, "Movie 1", "Overview", "", "", 1.0)
     private val movie2 = Movie(2, "Movie 2", "Overview", "", "", 2.0)
-    private val movie3 = Movie(3, "Movie 3", "Overview", "", "", 3.0)
 
     @Before
     fun setUp() {

@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
@@ -30,8 +31,7 @@ fun MovieDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: MovieDetailViewModel = viewModel()
 ) {
-    val trailerUrl by viewModel.trailerUrl.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoadingTrailer.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
     var isPosterVisible by remember { mutableStateOf(false) }
 
@@ -43,10 +43,10 @@ fun MovieDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Details") },
+                title = { Text(stringResource(com.example.demomovieapp.R.string.details)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(com.example.demomovieapp.R.string.back_content_desc))
                     }
                 }
             )
@@ -80,11 +80,11 @@ fun MovieDetailScreen(
                         }
                     )
 
-                    if (isLoading) {
+                    if (uiState.isLoadingTrailer) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    } else if (trailerUrl != null) {
+                    } else if (uiState.trailerUrl != null) {
                         FilledIconButton(
-                            onClick = { onPlayTrailer(trailerUrl!!) },
+                            onClick = { onPlayTrailer(uiState.trailerUrl!!) },
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .size(64.dp),
@@ -94,7 +94,7 @@ fun MovieDetailScreen(
                         ) {
                             Icon(
                                 Icons.Default.PlayArrow,
-                                contentDescription = "Play Trailer",
+                                contentDescription = stringResource(com.example.demomovieapp.R.string.play_trailer_content_desc),
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -143,7 +143,7 @@ fun MovieDetailScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Overview",
+                    text = stringResource(com.example.demomovieapp.R.string.overview),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -154,7 +154,7 @@ fun MovieDetailScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Rating: ${movie.voteAverage}/10",
+                    text = stringResource(com.example.demomovieapp.R.string.rating_format, movie.voteAverage),
                     style = MaterialTheme.typography.labelLarge
                 )
                 Spacer(modifier = Modifier.height(32.dp))

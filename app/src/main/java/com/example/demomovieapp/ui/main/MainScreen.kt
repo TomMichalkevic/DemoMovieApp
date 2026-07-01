@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
@@ -27,15 +28,7 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = viewModel()
 ) {
-    val popular by viewModel.popularMovies.collectAsStateWithLifecycle()
-    val topRated by viewModel.topRatedMovies.collectAsStateWithLifecycle()
-    val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
-    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    val isFetchingMore by viewModel.isFetchingMore.collectAsStateWithLifecycle()
-    val error by viewModel.error.collectAsStateWithLifecycle()
-
-    val viewedMovies by viewModel.viewedMovies.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val handleMovieClick: (Movie) -> Unit = { movie ->
         viewModel.trackMovieView(movie)
@@ -44,33 +37,33 @@ fun MainScreen(
 
     Column(modifier = modifier.fillMaxSize()) {
         OutlinedTextField(
-            value = searchQuery,
+            value = uiState.searchQuery,
             onValueChange = viewModel::search,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            placeholder = { Text("Search movies...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            placeholder = { Text(stringResource(com.example.demomovieapp.R.string.search_movies)) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(com.example.demomovieapp.R.string.search_content_desc)) },
             singleLine = true,
             shape = MaterialTheme.shapes.extraLarge
         )
 
-        if (isLoading && popular.isEmpty()) {
+        if (uiState.isLoading && uiState.popularMovies.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-        } else if (error != null && popular.isEmpty()) {
+        } else if (uiState.error != null && uiState.popularMovies.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = error!!, color = MaterialTheme.colorScheme.error)
+                Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
             }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                if (searchResults != null) {
-                    item { SectionTitle("Search Results") }
-                    if (searchResults!!.isEmpty() && !isLoading) {
+                if (uiState.searchResults != null) {
+                    item { SectionTitle(stringResource(com.example.demomovieapp.R.string.search_results)) }
+                    if (uiState.searchResults!!.isEmpty() && !uiState.isLoading) {
                         item {
                             Box(
                                 modifier = Modifier
@@ -79,25 +72,25 @@ fun MainScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "No movies found matching \"$searchQuery\"",
+                                    text = stringResource(com.example.demomovieapp.R.string.no_movies_found, uiState.searchQuery),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                     } else {
-                        itemsIndexed(searchResults!!) { index, movie ->
+                        itemsIndexed(uiState.searchResults!!) { index, movie ->
                             MovieListItem(movie = movie, onClick = { handleMovieClick(movie) })
                             
                             // Trigger load next page when we reach the end
-                            if (index == searchResults!!.lastIndex) {
+                            if (index == uiState.searchResults!!.lastIndex) {
                                 androidx.compose.runtime.LaunchedEffect(index) {
                                     viewModel.loadNextSearchPage()
                                 }
                             }
                         }
                         
-                        if (isFetchingMore) {
+                        if (uiState.isFetchingMore) {
                             item {
                                 Box(
                                     modifier = Modifier
@@ -111,22 +104,22 @@ fun MainScreen(
                         }
                     }
                 } else {
-                    if (viewedMovies.isNotEmpty()) {
+                    if (uiState.viewedMovies.isNotEmpty()) {
                         item {
-                            SectionTitle("Viewed Movies")
-                            MovieHorizontalList(viewedMovies, handleMovieClick)
+                            SectionTitle(stringResource(com.example.demomovieapp.R.string.viewed_movies))
+                            MovieHorizontalList(uiState.viewedMovies, handleMovieClick)
                         }
                     }
-                    if (popular.isNotEmpty()) {
+                    if (uiState.popularMovies.isNotEmpty()) {
                         item {
-                            SectionTitle("Popular")
-                            MovieHorizontalList(popular, handleMovieClick)
+                            SectionTitle(stringResource(com.example.demomovieapp.R.string.popular))
+                            MovieHorizontalList(uiState.popularMovies, handleMovieClick)
                         }
                     }
-                    if (topRated.isNotEmpty()) {
+                    if (uiState.topRatedMovies.isNotEmpty()) {
                         item {
-                            SectionTitle("Top Rated")
-                            MovieHorizontalList(topRated, handleMovieClick)
+                            SectionTitle(stringResource(com.example.demomovieapp.R.string.top_rated))
+                            MovieHorizontalList(uiState.topRatedMovies, handleMovieClick)
                         }
                     }
                 }

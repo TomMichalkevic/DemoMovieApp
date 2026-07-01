@@ -9,28 +9,30 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class MovieDetailViewModel @Inject constructor(
     private val repository: MovieRepository
 ) : ViewModel() {
 
-    private val _trailerUrl = MutableStateFlow<String?>(null)
-    val trailerUrl: StateFlow<String?> = _trailerUrl.asStateFlow()
-
-    private val _isLoadingTrailer = MutableStateFlow(false)
-    val isLoadingTrailer: StateFlow<Boolean> = _isLoadingTrailer.asStateFlow()
+    private val _uiState = MutableStateFlow(MovieDetailUiState())
+    val uiState: StateFlow<MovieDetailUiState> = _uiState.asStateFlow()
 
     fun loadTrailer(movieId: Int) {
         viewModelScope.launch {
-            _isLoadingTrailer.value = true
+            _uiState.update { it.copy(isLoadingTrailer = true, error = null) }
             try {
                 val url = repository.getTrailerUrl(movieId)
-                _trailerUrl.value = url
+                _uiState.update { it.copy(trailerUrl = url, isLoadingTrailer = false) }
             } catch (e: Exception) {
-                _trailerUrl.value = null
-            } finally {
-                _isLoadingTrailer.value = false
+                _uiState.update { 
+                    it.copy(
+                        trailerUrl = null, 
+                        error = e.message ?: "Failed to load trailer",
+                        isLoadingTrailer = false
+                    ) 
+                }
             }
         }
     }

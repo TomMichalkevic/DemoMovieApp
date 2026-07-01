@@ -45,12 +45,16 @@ class MainScreenViewModelTest {
 
     @Test
     fun `initialization loads popular and top rated movies`() = runTest {
-        classUnderTest.popularMovies.test {
-            assertEquals(listOf(movie1), awaitItem())
-        }
-
-        classUnderTest.topRatedMovies.test {
-            assertEquals(listOf(movie2), awaitItem())
+        classUnderTest.uiState.test {
+            val initialState = awaitItem()
+            if (initialState.isLoading) {
+                val loadedState = awaitItem()
+                assertEquals(listOf(movie1), loadedState.popularMovies)
+                assertEquals(listOf(movie2), loadedState.topRatedMovies)
+            } else {
+                assertEquals(listOf(movie1), initialState.popularMovies)
+                assertEquals(listOf(movie2), initialState.topRatedMovies)
+            }
         }
     }
 
@@ -58,25 +62,59 @@ class MainScreenViewModelTest {
     fun `search with query fetches movies with debounce`() = runTest {
         coEvery { movieRepository.searchMovies("test", 1) } returns Pair(listOf(movie1, movie2), 1)
 
-        classUnderTest.search("test")
-
-        classUnderTest.searchResults.test {
-            assertEquals(null, awaitItem()) // Initial
+        classUnderTest.uiState.test {
+            // Initial state from init {} could be loading or loaded, but searchResults is null
+            assertEquals(null, awaitItem().searchResults)
             
+            // Perform action
+            classUnderTest.search("test")
+
+            // State changes to searchQuery = "test"
+            val stateAfterSearch = awaitItem()
+            assertEquals("test", stateAfterSearch.searchQuery)
+
             // Advance time to pass the 500ms debounce
             advanceTimeBy(501)
             
-            assertEquals(listOf(movie1, movie2), awaitItem())
+            // Wait for loading to finish and result to arrive
+            val resultState = awaitItem()
+            if (resultState.isLoading) {
+                assertEquals(listOf(movie1, movie2), awaitItem().searchResults)
+            } else {
+                assertEquals(listOf(movie1, movie2), resultState.searchResults)
+            }
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
     fun `search with blank query clears results`() = runTest {
-        classUnderTest.search("")
+        classUnderTest.uiState.test {
+            // Initial state
+            awaitItem()
+            
+            // Set some initial search results first
+            classUnderTest.search("test")
+            val stateWithQuery = awaitItem()
+            
+            advanceTimeBy(501)
+            // Skip loading
+            val loadedState = awaitItem()
+            if (loadedState.isLoading) {
+                awaitItem() // the result state
+            }
+            
+            // Perform action with blank query
+            classUnderTest.search("")
 
-        classUnderTest.searchResults.test {
-            assertEquals(null, awaitItem())
+            // Next state will update searchQuery to "" and searchResults to null
+            val clearedState = awaitItem()
+            assertEquals("", clearedState.searchQuery)
+            if (clearedState.searchResults != null) {
+                val finalState = awaitItem()
+                assertEquals(null, finalState.searchResults)
+            }
+            
             cancelAndIgnoreRemainingEvents()
         }
     }
