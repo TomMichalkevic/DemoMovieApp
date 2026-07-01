@@ -32,6 +32,7 @@ fun MainScreen(
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val isFetchingMore by viewModel.isFetchingMore.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
 
     val viewedMovies by viewModel.viewedMovies.collectAsStateWithLifecycle()
@@ -96,7 +97,6 @@ fun MainScreen(
                             }
                         }
                         
-                        val isFetchingMore by viewModel.isFetchingMore.collectAsStateWithLifecycle()
                         if (isFetchingMore) {
                             item {
                                 Box(
