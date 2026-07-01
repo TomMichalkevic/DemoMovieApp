@@ -27,19 +27,34 @@ class MovieRepository {
     // TODO: Add your TMDB API key here before running
     private val TMDB_API_KEY = "YOUR_API_KEY_HERE"
 
-    suspend fun getNowPlaying(): List<Movie> = withContext(Dispatchers.IO) {
-        val response = tmdbApi.getNowPlaying(TMDB_API_KEY)
-        response.results.map { tmdbMovie ->
-            Movie(
-                id = tmdbMovie.id,
-                title = tmdbMovie.title,
-                overview = tmdbMovie.overview,
-                posterUrl = tmdbMovie.posterUrl,
-                backdropUrl = tmdbMovie.backdropUrl,
-                voteAverage = tmdbMovie.voteAverage,
-                trailerUrl = null // Fetched on-demand
-            )
+    suspend fun getPopular(): List<Movie> = withContext(Dispatchers.IO) {
+        tmdbApi.getPopular(TMDB_API_KEY).results.map { tmdbMovie ->
+            mapToDomain(tmdbMovie)
         }
+    }
+
+    suspend fun getTopRated(): List<Movie> = withContext(Dispatchers.IO) {
+        tmdbApi.getTopRated(TMDB_API_KEY).results.map { tmdbMovie ->
+            mapToDomain(tmdbMovie)
+        }
+    }
+
+    suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
+        tmdbApi.searchMovies(TMDB_API_KEY, query).results.map { tmdbMovie ->
+            mapToDomain(tmdbMovie)
+        }
+    }
+
+    private fun mapToDomain(tmdbMovie: TmdbMovie): Movie {
+        return Movie(
+            id = tmdbMovie.id,
+            title = tmdbMovie.title,
+            overview = tmdbMovie.overview,
+            posterUrl = tmdbMovie.posterUrl,
+            backdropUrl = tmdbMovie.backdropUrl,
+            voteAverage = tmdbMovie.voteAverage,
+            trailerUrl = null
+        )
     }
 
     suspend fun getTrailerUrl(movieTitle: String): String? = withContext(Dispatchers.IO) {

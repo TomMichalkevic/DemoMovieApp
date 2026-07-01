@@ -2,9 +2,11 @@ package com.example.demomovieapp.ui.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,27 +26,57 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = viewModel()
 ) {
-    val movies by viewModel.movies.collectAsStateWithLifecycle()
+    val popular by viewModel.popularMovies.collectAsStateWithLifecycle()
+    val topRated by viewModel.topRatedMovies.collectAsStateWithLifecycle()
+    val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
 
-    Box(modifier = modifier.fillMaxSize()) {
-        if (isLoading && movies.isEmpty()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        } else if (error != null && movies.isEmpty()) {
-            Text(
-                text = error!!,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.align(Alignment.Center)
-            )
+    Column(modifier = modifier.fillMaxSize()) {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = viewModel::search,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            placeholder = { Text("Search movies...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            singleLine = true,
+            shape = MaterialTheme.shapes.extraLarge
+        )
+
+        if (isLoading && popular.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (error != null && popular.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = error!!, color = MaterialTheme.colorScheme.error)
+            }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(120.dp),
-                contentPadding = PaddingValues(8.dp),
-                modifier = Modifier.fillMaxSize()
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                items(movies) { movie ->
-                    MovieItem(movie = movie, onClick = { onMovieClick(movie) })
+                if (searchResults != null) {
+                    item { SectionTitle("Search Results") }
+                    items(searchResults!!) { movie ->
+                        MovieListItem(movie = movie, onClick = { onMovieClick(movie) })
+                    }
+                } else {
+                    if (popular.isNotEmpty()) {
+                        item {
+                            SectionTitle("Popular")
+                            MovieHorizontalList(popular, onMovieClick)
+                        }
+                    }
+                    if (topRated.isNotEmpty()) {
+                        item {
+                            SectionTitle("Top Rated")
+                            MovieHorizontalList(topRated, onMovieClick)
+                        }
+                    }
                 }
             }
         }
@@ -52,29 +84,66 @@ fun MainScreen(
 }
 
 @Composable
-fun MovieItem(movie: Movie, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .clickable(onClick = onClick)
-            .fillMaxWidth()
-            .aspectRatio(0.6f),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
+fun MovieHorizontalList(movies: List<Movie>, onMovieClick: (Movie) -> Unit) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column {
+        items(movies) { movie ->
+            MovieCard(movie = movie, modifier = Modifier.width(120.dp), onClick = { onMovieClick(movie) })
+        }
+    }
+}
+
+@Composable
+fun MovieListItem(movie: Movie, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Card(modifier = Modifier.width(60.dp).aspectRatio(0.6f)) {
             AsyncImage(
                 model = movie.posterUrl,
                 contentDescription = movie.title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.weight(1f).fillMaxWidth()
-            )
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.fillMaxSize()
             )
         }
+        Spacer(Modifier.width(16.dp))
+        Text(
+            text = movie.title,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun MovieCard(movie: Movie, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .aspectRatio(0.6f),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        AsyncImage(
+            model = movie.posterUrl,
+            contentDescription = movie.title,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
