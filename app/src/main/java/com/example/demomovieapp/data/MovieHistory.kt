@@ -1,5 +1,7 @@
 package com.example.demomovieapp.data
 
+import com.example.demomovieapp.domain.model.Movie
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +13,7 @@ object MovieHistory {
     fun addViewedMovie(movie: Movie) {
         val current = _viewedMovies.value.toMutableList()
         current.removeAll { it.id == movie.id }
-        current.add(0, movie) // Add to the beginning of the list
+        current.add(0, movie)
         _viewedMovies.value = current
     }
 }

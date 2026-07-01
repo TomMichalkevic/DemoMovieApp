@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
-import com.example.demomovieapp.data.Movie
+import com.example.demomovieapp.domain.model.Movie
 
 @Composable
 fun MainScreen(

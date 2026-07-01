@@ -1,7 +1,7 @@
 package com.example.demomovieapp
 
 import androidx.navigation3.runtime.NavKey
-import com.example.demomovieapp.data.Movie
+import com.example.demomovieapp.domain.model.Movie
 import kotlinx.serialization.Serializable
 
 @Serializable data object Main : NavKey

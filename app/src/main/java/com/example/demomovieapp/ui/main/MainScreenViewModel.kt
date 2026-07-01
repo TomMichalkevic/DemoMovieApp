@@ -2,7 +2,7 @@ package com.example.demomovieapp.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.demomovieapp.data.Movie
+import com.example.demomovieapp.domain.model.Movie
 import com.example.demomovieapp.data.MovieRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

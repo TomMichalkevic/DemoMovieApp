@@ -1,5 +1,8 @@
 package com.example.demomovieapp.data
 
+import com.example.demomovieapp.data.remote.dto.TmdbResponse
+import com.example.demomovieapp.data.remote.dto.TmdbVideoResponse
+
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
