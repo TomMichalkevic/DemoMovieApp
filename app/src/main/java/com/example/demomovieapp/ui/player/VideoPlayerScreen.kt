@@ -109,9 +109,15 @@ fun VideoPlayerScreen(videoUrl: String) {
         AndroidView(
             factory = { ctx ->
                 PlayerView(ctx).apply {
-                    player = exoPlayer
                     useController = false // Disable default ExoPlayer controls
+                    layoutParams = android.widget.FrameLayout.LayoutParams(
+                        android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+                    )
                 }
+            },
+            update = { playerView ->
+                playerView.player = exoPlayer
             },
             modifier = Modifier.fillMaxSize()
         )
