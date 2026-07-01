@@ -68,8 +68,25 @@ fun MainScreen(
             ) {
                 if (searchResults != null) {
                     item { SectionTitle("Search Results") }
-                    items(searchResults!!) { movie ->
-                        MovieListItem(movie = movie, onClick = { handleMovieClick(movie) })
+                    if (searchResults!!.isEmpty() && !isLoading) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "No movies found matching \"$searchQuery\"",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    } else {
+                        items(searchResults!!) { movie ->
+                            MovieListItem(movie = movie, onClick = { handleMovieClick(movie) })
+                        }
                     }
                 } else {
                     if (viewedMovies.isNotEmpty()) {
