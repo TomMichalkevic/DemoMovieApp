@@ -1,5 +1,9 @@
 package com.example.demomovieapp.ui.detail
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -28,15 +32,18 @@ fun MovieDetailScreen(
 ) {
     val trailerUrl by viewModel.trailerUrl.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoadingTrailer.collectAsStateWithLifecycle()
+    
+    var isPosterVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(movie.id) {
         viewModel.loadTrailer(movie.id)
+        isPosterVisible = true
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(movie.title) },
+                title = { Text("Details") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -53,50 +60,92 @@ fun MovieDetailScreen(
                 .fillMaxSize()
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f)
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Backdrop image
-                SubcomposeAsyncImage(
-                    model = movie.backdropUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                    loading = {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
+                // Backdrop image section
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                ) {
+                    SubcomposeAsyncImage(
+                        model = movie.backdropUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                        loading = {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                    )
+
+                    if (isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    } else if (trailerUrl != null) {
+                        FilledIconButton(
+                            onClick = { onPlayTrailer(trailerUrl!!) },
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(64.dp),
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.PlayArrow,
+                                contentDescription = "Play Trailer",
+                                modifier = Modifier.size(32.dp)
+                            )
                         }
                     }
-                )
+                }
 
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                } else if (trailerUrl != null) {
-                    FilledIconButton(
-                        onClick = { onPlayTrailer(trailerUrl!!) },
+                // Overlaid Poster with Animation
+                AnimatedVisibility(
+                    visible = isPosterVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(500)
+                    ) + fadeIn(),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 16.dp)
+                        .offset(y = 48.dp) // Hang over the edge of the backdrop
+                ) {
+                    Card(
                         modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(64.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                        )
+                            .width(120.dp)
+                            .aspectRatio(0.66f),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                     ) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = "Play Trailer",
-                            modifier = Modifier.size(32.dp)
+                        SubcomposeAsyncImage(
+                            model = movie.posterUrl,
+                            contentDescription = movie.title,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
+                            loading = {
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                }
+                            }
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(64.dp)) // Spacer to account for the poster overlap
 
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text(
+                    text = movie.title,
+                    style = MaterialTheme.typography.headlineMedium
+                )
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Overview",
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -108,6 +157,7 @@ fun MovieDetailScreen(
                     text = "Rating: ${movie.voteAverage}/10",
                     style = MaterialTheme.typography.labelLarge
                 )
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
