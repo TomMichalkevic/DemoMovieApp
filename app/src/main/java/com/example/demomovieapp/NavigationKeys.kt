@@ -6,3 +6,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object Main : NavKey
 @Serializable data class Detail(val movie: Movie) : NavKey
+@Serializable data class VideoPlayer(val videoUrl: String) : NavKey

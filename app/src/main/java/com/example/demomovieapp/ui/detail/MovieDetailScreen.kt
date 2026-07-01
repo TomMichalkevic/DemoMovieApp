@@ -5,19 +5,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.example.demomovieapp.data.Movie
 
@@ -25,6 +21,7 @@ import com.example.demomovieapp.data.Movie
 @Composable
 fun MovieDetailScreen(
     movie: Movie,
+    onPlayTrailer: (String) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MovieDetailViewModel = viewModel()
@@ -55,28 +52,43 @@ fun MovieDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .fillMaxSize()
         ) {
-            if (trailerUrl != null) {
-                // Video Player
-                VideoPlayer(videoUrl = trailerUrl!!)
-            } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
+            ) {
                 // Backdrop image
                 AsyncImage(
                     model = movie.backdropUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(16f / 9f)
+                    modifier = Modifier.fillMaxSize()
                 )
+
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (trailerUrl != null) {
+                    FilledIconButton(
+                        onClick = { onPlayTrailer(trailerUrl!!) },
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(64.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                        )
+                    ) {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = "Play Trailer",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Column(modifier = Modifier.padding(16.dp)) {
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                }
-                
                 Text(
                     text = "Overview",
                     style = MaterialTheme.typography.titleLarge
@@ -94,34 +106,4 @@ fun MovieDetailScreen(
             }
         }
     }
-}
-
-@Composable
-@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-fun VideoPlayer(videoUrl: String) {
-    val context = LocalContext.current
-    var exoPlayer by remember { mutableStateOf<ExoPlayer?>(null) }
-
-    DisposableEffect(videoUrl) {
-        val player = ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(videoUrl))
-            prepare()
-            playWhenReady = false
-        }
-        exoPlayer = player
-        onDispose {
-            player.release()
-        }
-    }
-
-    AndroidView(
-        factory = { ctx ->
-            PlayerView(ctx).apply {
-                player = exoPlayer
-            }
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(16f / 9f)
-    )
 }

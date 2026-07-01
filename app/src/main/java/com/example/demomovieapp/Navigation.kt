@@ -29,9 +29,13 @@ fun MainNavigation() {
         entry<Detail> { detailKey ->
           MovieDetailScreen(
               movie = detailKey.movie,
+              onPlayTrailer = { url -> backStack.add(VideoPlayer(url)) },
               onBackClick = { backStack.removeLastOrNull() },
               modifier = Modifier.safeDrawingPadding()
           )
+        }
+        entry<VideoPlayer> { videoKey ->
+            com.example.demomovieapp.ui.player.VideoPlayerScreen(videoUrl = videoKey.videoUrl)
         }
       },
   )
