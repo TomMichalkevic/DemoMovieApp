@@ -14,7 +14,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.example.demomovieapp.data.Movie
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,11 +58,16 @@ fun MovieDetailScreen(
                     .aspectRatio(16f / 9f)
             ) {
                 // Backdrop image
-                AsyncImage(
+                SubcomposeAsyncImage(
                     model = movie.backdropUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    loading = {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 )
 
                 if (isLoading) {
