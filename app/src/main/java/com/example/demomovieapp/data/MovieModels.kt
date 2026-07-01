@@ -33,6 +33,14 @@ data class TmdbVideo(
     val key: String
 )
 
+enum class VideoType(val value: String) {
+    TRAILER("Trailer"),
+    TEASER("Teaser"),
+    CLIP("Clip"),
+    FEATURETTE("Featurette"),
+    BEHIND_THE_SCENES("Behind the Scenes")
+}
+
 // Domain model
 @Serializable
 data class Movie(

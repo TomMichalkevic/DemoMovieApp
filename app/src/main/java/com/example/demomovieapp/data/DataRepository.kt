@@ -52,7 +52,7 @@ class MovieRepository {
     suspend fun getTrailerUrl(movieId: Int): String? = withContext(Dispatchers.IO) {
         try {
             val response = tmdbApi.getVideos(movieId, apiKey)
-            val hasTrailer = response.results.any { it.type.equals("Trailer", ignoreCase = true) }
+            val hasTrailer = response.results.any { it.type.equals(VideoType.TRAILER.value, ignoreCase = true) }
             if (hasTrailer) {
                 // Return local sample video resource ID
                 com.example.demomovieapp.R.raw.sample_video.toString()
