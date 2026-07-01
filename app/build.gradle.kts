@@ -81,4 +81,16 @@ dependencies {
   implementation(libs.androidx.navigation3.ui)
   implementation(libs.androidx.navigation3.runtime)
   implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+
+  // Networking & Serialization
+  implementation(libs.retrofit)
+  implementation(libs.retrofit.serialization)
+  implementation(libs.kotlinx.serialization.json)
+
+  // Image Loading
+  implementation(libs.coil.compose)
+
+  // Media Playback
+  implementation(libs.media3.exoplayer)
+  implementation(libs.media3.ui)
 }
