@@ -75,4 +75,10 @@ class MainScreenViewModel(
             }
         }
     }
+
+    val viewedMovies: StateFlow<List<Movie>> = com.example.demomovieapp.data.MovieHistory.viewedMovies
+
+    fun trackMovieView(movie: Movie) {
+        com.example.demomovieapp.data.MovieHistory.addViewedMovie(movie)
+    }
 }

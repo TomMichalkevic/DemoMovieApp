@@ -33,6 +33,13 @@ fun MainScreen(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
 
+    val viewedMovies by viewModel.viewedMovies.collectAsStateWithLifecycle()
+
+    val handleMovieClick: (Movie) -> Unit = { movie ->
+        viewModel.trackMovieView(movie)
+        onMovieClick(movie)
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
         OutlinedTextField(
             value = searchQuery,
@@ -62,19 +69,25 @@ fun MainScreen(
                 if (searchResults != null) {
                     item { SectionTitle("Search Results") }
                     items(searchResults!!) { movie ->
-                        MovieListItem(movie = movie, onClick = { onMovieClick(movie) })
+                        MovieListItem(movie = movie, onClick = { handleMovieClick(movie) })
                     }
                 } else {
+                    if (viewedMovies.isNotEmpty()) {
+                        item {
+                            SectionTitle("Viewed Movies")
+                            MovieHorizontalList(viewedMovies, handleMovieClick)
+                        }
+                    }
                     if (popular.isNotEmpty()) {
                         item {
                             SectionTitle("Popular")
-                            MovieHorizontalList(popular, onMovieClick)
+                            MovieHorizontalList(popular, handleMovieClick)
                         }
                     }
                     if (topRated.isNotEmpty()) {
                         item {
                             SectionTitle("Top Rated")
-                            MovieHorizontalList(topRated, onMovieClick)
+                            MovieHorizontalList(topRated, handleMovieClick)
                         }
                     }
                 }
