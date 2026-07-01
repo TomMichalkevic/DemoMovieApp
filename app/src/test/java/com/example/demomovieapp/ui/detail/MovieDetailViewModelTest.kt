@@ -1,7 +1,7 @@
 package com.example.demomovieapp.ui.detail
 
 import app.cash.turbine.test
-import com.example.demomovieapp.domain.repository.MovieRepository
+import com.example.demomovieapp.domain.usecase.GetTrailerUrlUseCase
 import com.example.demomovieapp.utils.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -18,18 +18,18 @@ class MovieDetailViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private lateinit var repository: MovieRepository
+    private lateinit var getTrailerUrl: GetTrailerUrlUseCase
     private lateinit var classUnderTest: MovieDetailViewModel
 
     @Before
     fun setUp() {
-        repository = mockk()
-        classUnderTest = MovieDetailViewModel(repository)
+        getTrailerUrl = mockk()
+        classUnderTest = MovieDetailViewModel(getTrailerUrl)
     }
 
     @Test
     fun `loadTrailer success updates state correctly`() = runTest {
-        coEvery { repository.getTrailerUrl(1) } returns "https://youtube.com/watch?v=123"
+        coEvery { getTrailerUrl(1) } returns "https://youtube.com/watch?v=123"
 
         classUnderTest.uiState.test {
             assertEquals(null, awaitItem().trailerUrl)
@@ -48,7 +48,7 @@ class MovieDetailViewModelTest {
 
     @Test
     fun `loadTrailer error sets url to null`() = runTest {
-        coEvery { repository.getTrailerUrl(1) } throws RuntimeException("Network Error")
+        coEvery { getTrailerUrl(1) } throws RuntimeException("Network Error")
 
         classUnderTest.uiState.test {
             assertEquals(null, awaitItem().trailerUrl) // Initial state

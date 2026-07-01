@@ -3,8 +3,11 @@ package com.example.demomovieapp.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.demomovieapp.domain.model.Movie
-import com.example.demomovieapp.domain.repository.MovieRepository
-import com.example.demomovieapp.domain.repository.HistoryRepository
+import com.example.demomovieapp.domain.usecase.GetPopularMoviesUseCase
+import com.example.demomovieapp.domain.usecase.GetTopRatedMoviesUseCase
+import com.example.demomovieapp.domain.usecase.GetViewedMoviesUseCase
+import com.example.demomovieapp.domain.usecase.SearchMoviesUseCase
+import com.example.demomovieapp.domain.usecase.TrackMovieViewUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -17,8 +20,11 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val repository: MovieRepository,
-    private val historyRepository: HistoryRepository
+    private val getPopularMovies: GetPopularMoviesUseCase,
+    private val getTopRatedMovies: GetTopRatedMoviesUseCase,
+    private val searchMovies: SearchMoviesUseCase,
+    private val getViewedMovies: GetViewedMoviesUseCase,
+    private val trackMovieViewUseCase: TrackMovieViewUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -30,7 +36,7 @@ class MainScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            historyRepository.viewedMovies.collect { viewedMovies ->
+            getViewedMovies().collect { viewedMovies ->
                 _uiState.update { it.copy(viewedMovies = viewedMovies) }
             }
         }
@@ -41,8 +47,8 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val popular = repository.getPopular()
-                val topRated = repository.getTopRated()
+                val popular = getPopularMovies()
+                val topRated = getTopRatedMovies()
                 _uiState.update { 
                     it.copy(
                         popularMovies = popular,
@@ -77,7 +83,7 @@ class MainScreenViewModel @Inject constructor(
             delay(500) // debounce
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val (movies, totalPages) = repository.searchMovies(query, searchPage)
+                val (movies, totalPages) = searchMovies(query, searchPage)
                 maxSearchPages = totalPages
                 _uiState.update { it.copy(searchResults = movies, isLoading = false) }
             } catch (e: Exception) {
@@ -100,7 +106,7 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isFetchingMore = true, error = null) }
             try {
-                val (newMovies, _) = repository.searchMovies(query, searchPage)
+                val (newMovies, _) = searchMovies(query, searchPage)
                 _uiState.update { 
                     it.copy(
                         searchResults = it.searchResults.orEmpty() + newMovies,
@@ -120,6 +126,6 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun trackMovieView(movie: Movie) {
-        historyRepository.addViewedMovie(movie)
+        trackMovieViewUseCase(movie)
     }
 }

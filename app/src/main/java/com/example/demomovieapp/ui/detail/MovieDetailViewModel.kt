@@ -2,7 +2,7 @@ package com.example.demomovieapp.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.demomovieapp.domain.repository.MovieRepository
+import com.example.demomovieapp.domain.usecase.GetTrailerUrlUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class MovieDetailViewModel @Inject constructor(
-    private val repository: MovieRepository
+    private val getTrailerUrl: GetTrailerUrlUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MovieDetailUiState())
@@ -23,7 +23,7 @@ class MovieDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingTrailer = true, error = null) }
             try {
-                val url = repository.getTrailerUrl(movieId)
+                val url = getTrailerUrl(movieId)
                 _uiState.update { it.copy(trailerUrl = url, isLoadingTrailer = false) }
             } catch (e: Exception) {
                 _uiState.update { 

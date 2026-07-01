@@ -4,8 +4,14 @@ import app.cash.turbine.test
 import com.example.demomovieapp.domain.model.Movie
 import com.example.demomovieapp.domain.repository.HistoryRepository
 import com.example.demomovieapp.domain.repository.MovieRepository
+import com.example.demomovieapp.domain.usecase.GetPopularMoviesUseCase
+import com.example.demomovieapp.domain.usecase.GetTopRatedMoviesUseCase
+import com.example.demomovieapp.domain.usecase.GetViewedMoviesUseCase
+import com.example.demomovieapp.domain.usecase.SearchMoviesUseCase
+import com.example.demomovieapp.domain.usecase.TrackMovieViewUseCase
 import com.example.demomovieapp.utils.MainDispatcherRule
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -24,8 +30,12 @@ class MainScreenViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private lateinit var movieRepository: MovieRepository
-    private lateinit var historyRepository: HistoryRepository
+    private lateinit var getPopularMovies: GetPopularMoviesUseCase
+    private lateinit var getTopRatedMovies: GetTopRatedMoviesUseCase
+    private lateinit var searchMovies: SearchMoviesUseCase
+    private lateinit var getViewedMovies: GetViewedMoviesUseCase
+    private lateinit var trackMovieViewUseCase: TrackMovieViewUseCase
+    
     private lateinit var classUnderTest: MainScreenViewModel
 
     private val movie1 = Movie(1, "Movie 1", "Overview", "", "", 1.0)
@@ -33,14 +43,23 @@ class MainScreenViewModelTest {
 
     @Before
     fun setUp() {
-        movieRepository = mockk()
-        historyRepository = mockk(relaxed = true)
+        getPopularMovies = mockk()
+        getTopRatedMovies = mockk()
+        searchMovies = mockk()
+        getViewedMovies = mockk()
+        trackMovieViewUseCase = mockk(relaxed = true)
 
-        coEvery { movieRepository.getPopular() } returns listOf(movie1)
-        coEvery { movieRepository.getTopRated() } returns listOf(movie2)
-        every { historyRepository.viewedMovies } returns MutableStateFlow(emptyList())
+        coEvery { getPopularMovies() } returns listOf(movie1)
+        coEvery { getTopRatedMovies() } returns listOf(movie2)
+        every { getViewedMovies() } returns MutableStateFlow(emptyList())
 
-        classUnderTest = MainScreenViewModel(movieRepository, historyRepository)
+        classUnderTest = MainScreenViewModel(
+            getPopularMovies,
+            getTopRatedMovies,
+            searchMovies,
+            getViewedMovies,
+            trackMovieViewUseCase
+        )
     }
 
     @Test
@@ -60,7 +79,7 @@ class MainScreenViewModelTest {
 
     @Test
     fun `search with query fetches movies with debounce`() = runTest {
-        coEvery { movieRepository.searchMovies("test", 1) } returns Pair(listOf(movie1, movie2), 1)
+        coEvery { searchMovies("test", 1) } returns Pair(listOf(movie1, movie2), 1)
 
         classUnderTest.uiState.test {
             // Initial state from init {} could be loading or loaded, but searchResults is null
@@ -120,9 +139,9 @@ class MainScreenViewModelTest {
     }
 
     @Test
-    fun `trackMovieView delegates to history repository`() {
+    fun `trackMovieView delegates to use case`() {
         classUnderTest.trackMovieView(movie1)
 
-        verify { historyRepository.addViewedMovie(movie1) }
+        verify { trackMovieViewUseCase(movie1) }
     }
 }
