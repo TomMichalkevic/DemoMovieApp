@@ -33,6 +33,7 @@ data class ItunesMovie(
 )
 
 // Domain model
+@Serializable
 data class Movie(
     val id: Int,
     val title: String,

@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.demomovieapp.ui.main.MainScreen
+import com.example.demomovieapp.ui.detail.MovieDetailScreen
 
 @Composable
 fun MainNavigation() {
@@ -20,7 +21,17 @@ fun MainNavigation() {
     entryProvider =
       entryProvider {
         entry<Main> {
-          MainScreen(onItemClick = { navKey -> backStack.add(navKey) }, modifier = Modifier.safeDrawingPadding().padding(16.dp))
+          MainScreen(
+              onMovieClick = { movie -> backStack.add(Detail(movie)) }, 
+              modifier = Modifier.safeDrawingPadding().padding(16.dp)
+          )
+        }
+        entry<Detail> { detailKey ->
+          MovieDetailScreen(
+              movie = detailKey.movie,
+              onBackClick = { backStack.removeLastOrNull() },
+              modifier = Modifier.safeDrawingPadding()
+          )
         }
       },
   )
