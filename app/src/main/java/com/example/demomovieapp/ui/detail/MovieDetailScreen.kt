@@ -32,8 +32,8 @@ fun MovieDetailScreen(
     val trailerUrl by viewModel.trailerUrl.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoadingTrailer.collectAsStateWithLifecycle()
 
-    LaunchedEffect(movie.title) {
-        viewModel.loadTrailer(movie.title)
+    LaunchedEffect(movie.id) {
+        viewModel.loadTrailer(movie.id)
     }
 
     Scaffold(

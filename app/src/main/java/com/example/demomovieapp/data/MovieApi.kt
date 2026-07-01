@@ -1,6 +1,7 @@
 package com.example.demomovieapp.data
 
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TmdbApi {
@@ -25,13 +26,11 @@ interface TmdbApi {
         @Query("language") language: String = "en-US",
         @Query("page") page: Int = 1
     ): TmdbResponse
-}
 
-interface ItunesApi {
-    @GET("search")
-    suspend fun searchMovie(
-        @Query("term") term: String,
-        @Query("entity") entity: String = "movie",
-        @Query("limit") limit: Int = 1
-    ): ItunesResponse
+    @GET("movie/{movie_id}/videos")
+    suspend fun getVideos(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US"
+    ): TmdbVideoResponse
 }

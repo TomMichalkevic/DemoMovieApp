@@ -18,11 +18,11 @@ class MovieDetailViewModel(
     private val _isLoadingTrailer = MutableStateFlow(false)
     val isLoadingTrailer: StateFlow<Boolean> = _isLoadingTrailer.asStateFlow()
 
-    fun loadTrailer(movieTitle: String) {
+    fun loadTrailer(movieId: Int) {
         viewModelScope.launch {
             _isLoadingTrailer.value = true
             try {
-                val url = repository.getTrailerUrl(movieTitle)
+                val url = repository.getTrailerUrl(movieId)
                 _trailerUrl.value = url
             } catch (e: Exception) {
                 _trailerUrl.value = null

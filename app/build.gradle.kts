@@ -13,6 +13,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "TMDB_API_KEY", "\"YOUR_API_KEY_HERE\"")
     }
 
     buildTypes {
@@ -28,7 +29,7 @@ android {
     buildFeatures {
       compose = true
       aidl = false
-      buildConfig = false
+      buildConfig = true
       shaders = false
     }
 

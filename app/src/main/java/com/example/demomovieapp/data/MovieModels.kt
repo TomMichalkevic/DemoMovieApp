@@ -22,14 +22,14 @@ data class TmdbMovie(
 }
 
 @Serializable
-data class ItunesResponse(
-    val results: List<ItunesMovie>
+data class TmdbVideoResponse(
+    val results: List<TmdbVideo>
 )
 
 @Serializable
-data class ItunesMovie(
-    val trackName: String? = null,
-    val previewUrl: String? = null
+data class TmdbVideo(
+    val type: String,
+    val key: String
 )
 
 // Domain model

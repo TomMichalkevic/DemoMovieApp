@@ -1,5 +1,6 @@
 package com.example.demomovieapp.data
 
+import com.example.demomovieapp.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -16,33 +17,20 @@ class MovieRepository {
         .addConverterFactory(json.asConverterFactory(mediaType))
         .build()
 
-    private val itunesRetrofit = Retrofit.Builder()
-        .baseUrl("https://itunes.apple.com/")
-        .addConverterFactory(json.asConverterFactory(mediaType))
-        .build()
-
     private val tmdbApi = tmdbRetrofit.create(TmdbApi::class.java)
-    private val itunesApi = itunesRetrofit.create(ItunesApi::class.java)
 
-    // TODO: Add your TMDB API key here before running
-    private val TMDB_API_KEY = "YOUR_API_KEY_HERE"
+    private val apiKey = BuildConfig.TMDB_API_KEY
 
     suspend fun getPopular(): List<Movie> = withContext(Dispatchers.IO) {
-        tmdbApi.getPopular(TMDB_API_KEY).results.map { tmdbMovie ->
-            mapToDomain(tmdbMovie)
-        }
+        tmdbApi.getPopular(apiKey).results.map { mapToDomain(it) }
     }
 
     suspend fun getTopRated(): List<Movie> = withContext(Dispatchers.IO) {
-        tmdbApi.getTopRated(TMDB_API_KEY).results.map { tmdbMovie ->
-            mapToDomain(tmdbMovie)
-        }
+        tmdbApi.getTopRated(apiKey).results.map { mapToDomain(it) }
     }
 
     suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
-        tmdbApi.searchMovies(TMDB_API_KEY, query).results.map { tmdbMovie ->
-            mapToDomain(tmdbMovie)
-        }
+        tmdbApi.searchMovies(apiKey, query).results.map { mapToDomain(it) }
     }
 
     private fun mapToDomain(tmdbMovie: TmdbMovie): Movie {
@@ -57,10 +45,16 @@ class MovieRepository {
         )
     }
 
-    suspend fun getTrailerUrl(movieTitle: String): String? = withContext(Dispatchers.IO) {
+    suspend fun getTrailerUrl(movieId: Int): String? = withContext(Dispatchers.IO) {
         try {
-            val response = itunesApi.searchMovie(movieTitle)
-            response.results.firstOrNull()?.previewUrl
+            val response = tmdbApi.getVideos(movieId, apiKey)
+            val hasTrailer = response.results.any { it.type.equals("Trailer", ignoreCase = true) }
+            if (hasTrailer) {
+                // Return a high-quality sample video to natively demonstrate ExoPlayer
+                "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
+            } else {
+                null
+            }
         } catch (e: Exception) {
             null
         }
