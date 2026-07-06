@@ -30,9 +30,14 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
-import androidx.media3.datasource.RawResourceDataSource
-import androidx.core.util.Consumer
+import android.net.Uri
+import android.widget.FrameLayout
+import androidx.annotation.OptIn
 import androidx.core.app.PictureInPictureModeChangedInfo
+import androidx.core.util.Consumer
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.RawResourceDataSource
+import com.example.demomovieapp.R
 
 fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
@@ -41,7 +46,7 @@ fun Context.findActivity(): Activity? = when (this) {
 }
 
 @Composable
-@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+@OptIn(UnstableApi::class)
 fun VideoPlayerScreen(videoUrl: String) {
     val context = LocalContext.current
     val activity = context.findActivity()
@@ -62,7 +67,7 @@ fun VideoPlayerScreen(videoUrl: String) {
             val resId = videoUrl.toInt()
             RawResourceDataSource.buildRawResourceUri(resId)
         } catch (e: NumberFormatException) {
-            android.net.Uri.parse(videoUrl)
+            Uri.parse(videoUrl)
         }
 
         val player = ExoPlayer.Builder(context).build().apply {
@@ -80,7 +85,7 @@ fun VideoPlayerScreen(videoUrl: String) {
                 }
 
                 override fun onPlayerError(error: PlaybackException) {
-                    errorMessage = context.getString(com.example.demomovieapp.R.string.error_playing_video, error.message)
+                    errorMessage = error.message ?: "Unknown error"
                     isBuffering = false
                 }
             })
@@ -157,9 +162,9 @@ fun VideoPlayerScreen(videoUrl: String) {
             factory = { ctx ->
                 PlayerView(ctx).apply {
                     useController = false // Disable default ExoPlayer controls
-                    layoutParams = android.widget.FrameLayout.LayoutParams(
-                        android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
-                        android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
                     )
                 }
             },
@@ -188,7 +193,7 @@ fun VideoPlayerScreen(videoUrl: String) {
                 ) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) stringResource(com.example.demomovieapp.R.string.pause_content_desc) else stringResource(com.example.demomovieapp.R.string.play_content_desc),
+                        contentDescription = if (isPlaying) stringResource(R.string.pause_content_desc) else stringResource(R.string.play_content_desc),
                         tint = Color.White,
                         modifier = Modifier.size(64.dp)
                     )
@@ -247,13 +252,13 @@ fun VideoPlayerScreen(videoUrl: String) {
             ) {
                 Icon(
                     Icons.Default.Warning,
-                    contentDescription = stringResource(com.example.demomovieapp.R.string.error_content_desc),
+                    contentDescription = stringResource(R.string.error_content_desc),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(48.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = errorMessage!!,
+                    text = stringResource(R.string.error_playing_video, errorMessage!!),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge
                 )

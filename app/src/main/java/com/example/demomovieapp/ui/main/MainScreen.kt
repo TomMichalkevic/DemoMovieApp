@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.demomovieapp.R
 import coil.compose.SubcomposeAsyncImage
 import com.example.demomovieapp.domain.model.Movie
 
@@ -42,8 +44,8 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            placeholder = { Text(stringResource(com.example.demomovieapp.R.string.search_movies)) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(com.example.demomovieapp.R.string.search_content_desc)) },
+            placeholder = { Text(stringResource(R.string.search_movies)) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_content_desc)) },
             singleLine = true,
             shape = MaterialTheme.shapes.extraLarge
         )
@@ -62,7 +64,7 @@ fun MainScreen(
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 if (uiState.searchResults != null) {
-                    item { SectionTitle(stringResource(com.example.demomovieapp.R.string.search_results)) }
+                    item { SectionTitle(stringResource(R.string.search_results)) }
                     if (uiState.searchResults!!.isEmpty() && !uiState.isLoading) {
                         item {
                             Box(
@@ -72,7 +74,7 @@ fun MainScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = stringResource(com.example.demomovieapp.R.string.no_movies_found, uiState.searchQuery),
+                                    text = stringResource(R.string.no_movies_found, uiState.searchQuery),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -84,7 +86,7 @@ fun MainScreen(
                             
                             // Trigger load next page when we reach the end
                             if (index == uiState.searchResults!!.lastIndex) {
-                                androidx.compose.runtime.LaunchedEffect(index) {
+                                LaunchedEffect(index) {
                                     viewModel.loadNextSearchPage()
                                 }
                             }
@@ -106,19 +108,19 @@ fun MainScreen(
                 } else {
                     if (uiState.viewedMovies.isNotEmpty()) {
                         item {
-                            SectionTitle(stringResource(com.example.demomovieapp.R.string.viewed_movies))
+                            SectionTitle(stringResource(R.string.viewed_movies))
                             MovieHorizontalList(uiState.viewedMovies, handleMovieClick)
                         }
                     }
                     if (uiState.popularMovies.isNotEmpty()) {
                         item {
-                            SectionTitle(stringResource(com.example.demomovieapp.R.string.popular))
+                            SectionTitle(stringResource(R.string.popular))
                             MovieHorizontalList(uiState.popularMovies, handleMovieClick)
                         }
                     }
                     if (uiState.topRatedMovies.isNotEmpty()) {
                         item {
-                            SectionTitle(stringResource(com.example.demomovieapp.R.string.top_rated))
+                            SectionTitle(stringResource(R.string.top_rated))
                             MovieHorizontalList(uiState.topRatedMovies, handleMovieClick)
                         }
                     }

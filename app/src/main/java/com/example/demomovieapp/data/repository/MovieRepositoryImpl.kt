@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.example.demomovieapp.domain.model.Movie
 import com.example.demomovieapp.domain.repository.MovieRepository
+import com.example.demomovieapp.R
 import com.example.demomovieapp.data.remote.api.TmdbApi
 import com.example.demomovieapp.data.remote.dto.VideoType
 import com.example.demomovieapp.data.remote.mapper.toDomain
@@ -31,7 +32,7 @@ class MovieRepositoryImpl(
             val hasTrailer = response.results.any { it.type.equals(VideoType.TRAILER.value, ignoreCase = true) }
             if (hasTrailer) {
                 // Return local sample video resource ID
-                com.example.demomovieapp.R.raw.sample_video.toString()
+                R.raw.sample_video.toString()
             } else {
                 null
             }

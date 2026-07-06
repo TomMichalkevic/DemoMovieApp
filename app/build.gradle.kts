@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
@@ -17,9 +20,9 @@ android {
         versionCode = 1
         versionName = "1.0"
         val keystorePropertiesFile = rootProject.file("local.properties")
-        val keystoreProperties = java.util.Properties()
+        val keystoreProperties = Properties()
         if (keystorePropertiesFile.exists()) {
-            keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+            keystoreProperties.load(FileInputStream(keystorePropertiesFile))
         }
         val tmdbApiKey = keystoreProperties.getProperty("TMDB_API_KEY") ?: "YOUR_API_KEY"
         

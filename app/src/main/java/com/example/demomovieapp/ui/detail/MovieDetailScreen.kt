@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.demomovieapp.R
 import coil.compose.SubcomposeAsyncImage
 import com.example.demomovieapp.domain.model.Movie
 
@@ -43,10 +44,10 @@ fun MovieDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(com.example.demomovieapp.R.string.details)) },
+                title = { Text(stringResource(R.string.details)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(com.example.demomovieapp.R.string.back_content_desc))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_content_desc))
                     }
                 }
             )
@@ -94,7 +95,7 @@ fun MovieDetailScreen(
                         ) {
                             Icon(
                                 Icons.Default.PlayArrow,
-                                contentDescription = stringResource(com.example.demomovieapp.R.string.play_trailer_content_desc),
+                                contentDescription = stringResource(R.string.play_trailer_content_desc),
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -143,7 +144,7 @@ fun MovieDetailScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(com.example.demomovieapp.R.string.overview),
+                    text = stringResource(R.string.overview),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -154,7 +155,7 @@ fun MovieDetailScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(com.example.demomovieapp.R.string.rating_format, movie.voteAverage),
+                    text = stringResource(R.string.rating_format, movie.voteAverage),
                     style = MaterialTheme.typography.labelLarge
                 )
                 Spacer(modifier = Modifier.height(32.dp))
